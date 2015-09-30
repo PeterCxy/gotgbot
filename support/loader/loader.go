@@ -4,6 +4,8 @@ import (
 	telegram "github.com/PeterCxy/gotelegram"
 	"github.com/PeterCxy/gotgbot/support/types"
 	"github.com/PeterCxy/gotgbot/support/help"
+
+	"github.com/PeterCxy/gotgbot/misc"
 )
 
 func LoadModules(tg *telegram.Telegram, config map[string]interface{}) (types.CommandMap, types.Command) {
@@ -13,6 +15,11 @@ func LoadModules(tg *telegram.Telegram, config map[string]interface{}) (types.Co
 
 	// Help
 	if d := help.Setup(tg, config, modules, &ret); d.Processor != nil {
+		def = d
+	}
+
+	// Misc
+	if d := misc.Setup(tg, config, modules, &ret); d.Processor != nil {
 		def = d
 	}
 
