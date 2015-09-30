@@ -2,6 +2,8 @@
 package misc
 
 import (
+	"strings"
+
 	telegram "github.com/PeterCxy/gotelegram"
 	"github.com/PeterCxy/gotgbot/support/types"
 )
@@ -22,14 +24,27 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 			Desc: "Echo <text>",
 			Processor: misc,
 		}
+
+		// Debug parse
+		(*cmds)["parse"] = types.Command {
+			Name: "parse",
+			Args: "arguments",
+			ArgNum: -1,
+			Desc: "Parse argument list [debug]",
+			Debug: true,
+			Processor: misc,
+		}
 	}
 
 	return types.Command{}
 }
 
 func (this *Misc) Command(name string, msg telegram.TObject, args []string) {
-	if name == "echo" {
-		this.tg.SendMessage(args[0], msg.ChatId())
+	switch name {
+		case "echo":
+			this.tg.SendMessage(args[0], msg.ChatId())
+		case "parse":
+			this.tg.ReplyToMessage(msg.MessageId(), strings.Join(args, "\n"), msg.ChatId())
 	}
 }
 

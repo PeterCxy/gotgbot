@@ -7,6 +7,7 @@ SOURCES := \
 	support/types/*.go \
 	support/loader/*.go \
 	support/help/*.go \
+	misc/*.go \
 
 .PHONY: clean all test
 

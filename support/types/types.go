@@ -9,6 +9,7 @@ type Command struct {
 	Desc string
 	Args string
 	ArgNum int
+	Debug bool
 	Processor CommandProcessor
 }
 
