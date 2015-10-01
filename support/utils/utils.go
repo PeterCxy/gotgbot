@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"time"
+
 	"github.com/PeterCxy/gotgbot/support/types"
 )
 
@@ -62,4 +64,31 @@ func ReleaseGrabber(uid int64, chat int64) {
 func GrabberState(uid int64, chat int64) *map[string]interface{} {
 	state := states[uid + chat]
 	return &state
+}
+
+// The scheduler
+var schedule map[time.Time]func()
+
+func init() {
+	schedule = make(map[time.Time]func())
+}
+
+func PostDelayed(callback func(), duration time.Duration) {
+	schedule[time.Now().Add(duration)] = callback
+}
+
+// Start scheduled functions
+// Called from main loop
+func ScheduleDaemon() {
+	for {
+		now := time.Now()
+		for k, v := range schedule {
+			if now.Equal(k) || now.After(k) {
+				go v()
+				delete(schedule, k)
+			}
+		}
+
+		time.Sleep(100 * time.Millisecond)
+	}
 }

@@ -3,6 +3,7 @@ package misc
 
 import (
 	"strings"
+	"time"
 
 	telegram "github.com/PeterCxy/gotelegram"
 	"github.com/PeterCxy/gotgbot/support/types"
@@ -82,9 +83,22 @@ func (this *Misc) Default(name string, msg telegram.TObject, state *map[string]i
 	if name == "remind" {
 		if (*state)["remind"] == nil {
 			(*state)["remind"] = msg["text"].(string)
+			this.tg.ReplyToMessage(msg.MessageId(), "How long after now should I remind you?", msg.ChatId())
 		} else {
-			// TODO finish implementing this stuff
-			this.tg.SendMessage((*state)["remind"].(string), msg.ChatId())
+			duration, err := time.ParseDuration(msg["text"].(string))
+			if err != nil {
+				this.tg.ReplyToMessage(msg.MessageId(), "Invalid time. Supported format: BhCmDsEmsFnsGus", msg.ChatId())
+			} else {
+				text := (*state)["remind"].(string)
+
+				this.tg.ReplyToMessage(msg.MessageId(), "Yes, sir!", msg.ChatId())
+
+				utils.PostDelayed(func() {
+					this.tg.SendMessage("@" + msg.From()["username"].(string) + " " + text, msg.ChatId())
+				}, duration)
+
+				utils.ReleaseGrabber(msg.FromId(), msg.ChatId())
+			}
 		}
 	}
 }

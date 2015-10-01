@@ -18,6 +18,9 @@ func MainLoop() {
 	// Start the grabber daemon
 	go utils.GrabberDaemon()
 
+	// Start the schedule daemon
+	go utils.ScheduleDaemon()
+
 	// Loop forever
 	var offset int64 = 0
 	for {
