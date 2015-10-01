@@ -45,6 +45,6 @@ func (this *Help) Command(name string, msg telegram.TObject, args []string) {
 	}
 }
 
-func (this *Help) Default(name string, msg telegram.TObject) {
+func (this *Help) Default(name string, msg telegram.TObject, state *map[string]interface{}) {
 
 }

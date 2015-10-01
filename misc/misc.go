@@ -6,6 +6,7 @@ import (
 
 	telegram "github.com/PeterCxy/gotelegram"
 	"github.com/PeterCxy/gotgbot/support/types"
+	"github.com/PeterCxy/gotgbot/support/utils"
 )
 
 type Misc struct {
@@ -22,6 +23,22 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 			Args: "<text>",
 			ArgNum: 1,
 			Desc: "Echo <text>",
+			Processor: misc,
+		}
+
+		// Remind
+		(*cmds)["remind"] = types.Command {
+			Name: "remind",
+			ArgNum: 0,
+			Desc: "Remind you of something after a period of time",
+			Processor: misc,
+		}
+
+		// Cancel
+		(*cmds)["cancel"] = types.Command {
+			Name: "cancel",
+			ArgNum: 0,
+			Desc: "Cancel the current session with this bot",
 			Processor: misc,
 		}
 
@@ -45,8 +62,29 @@ func (this *Misc) Command(name string, msg telegram.TObject, args []string) {
 			this.tg.SendMessage(args[0], msg.ChatId())
 		case "parse":
 			this.tg.ReplyToMessage(msg.MessageId(), strings.Join(args, "\n"), msg.ChatId())
+		case "cancel":
+			if utils.HasGrabber(msg.FromId(), msg.ChatId()) {
+				utils.ReleaseGrabber(msg.FromId(), msg.ChatId())
+				this.tg.SendMessage("Current session cancelled", msg.ChatId())
+			}
+		case "remind":
+			this.tg.ReplyToMessage(msg.MessageId(), "What do you want me to remind you of?", msg.ChatId())
+			utils.SetGrabber(types.Grabber {
+				Name: "remind",
+				Uid: msg.FromId(),
+				Chat: msg.ChatId(),
+				Processor: this,
+			})
 	}
 }
 
-func (this *Misc) Default(name string, msg telegram.TObject) {
+func (this *Misc) Default(name string, msg telegram.TObject, state *map[string]interface{}) {
+	if name == "remind" {
+		if (*state)["remind"] == nil {
+			(*state)["remind"] = msg["text"].(string)
+		} else {
+			// TODO finish implementing this stuff
+			this.tg.SendMessage((*state)["remind"].(string), msg.ChatId())
+		}
+	}
 }

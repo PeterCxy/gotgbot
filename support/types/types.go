@@ -13,9 +13,16 @@ type Command struct {
 	Processor CommandProcessor
 }
 
+type Grabber struct {
+	Name string
+	Uid int64
+	Chat int64
+	Processor CommandProcessor
+}
+
 type CommandProcessor interface {
 	Command(name string, msg telegram.TObject, args []string)
-	Default(name string, msg telegram.TObject)
+	Default(name string, msg telegram.TObject, state *map[string]interface{})
 }
 
 type CommandMap map[string]Command

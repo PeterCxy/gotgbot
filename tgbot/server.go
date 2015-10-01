@@ -7,12 +7,16 @@ import (
 	"fmt"
 
 	telegram "github.com/PeterCxy/gotelegram"
+	"github.com/PeterCxy/gotgbot/support/utils"
 	//"github.com/PeterCxy/gotgbot/support/types"
 )
 
 func MainLoop() {
 	// Set webhook to null first
 	Telegram.SetWebhook("")
+
+	// Start the grabber daemon
+	go utils.GrabberDaemon()
 
 	// Loop forever
 	var offset int64 = 0
@@ -86,7 +90,11 @@ func handle(msg telegram.TObject) {
 				str,
 				msg.ChatId())
 		}
+	} else if utils.HasGrabber(msg.FromId(), msg.ChatId()) {
+		// Distribute to grabbers
+		name, processor := utils.Grabber(msg.FromId(), msg.ChatId())
+		processor.Default(name, msg, utils.GrabberState(msg.FromId(), msg.ChatId()))
 	}
 
-	// TODO: Distribute to default processor / input grabber
+	// TODO Distribute to default processor
 }
