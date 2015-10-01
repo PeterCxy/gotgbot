@@ -8,24 +8,23 @@ import (
 
 // Input "grabber"
 var grabbers map[int64]types.Grabber
-var grabberChannel chan types.Grabber
+var grabberChannel chan struct {grabber types.Grabber; ok chan bool}
 var grabberDelChannel chan int64
-var okChannel chan bool
 var states map[int64]map[string]interface{}
 
 func GrabberDaemon() {
 	grabbers = make(map[int64]types.Grabber)
-	grabberChannel = make(chan types.Grabber)
+	grabberChannel = make(chan struct {grabber types.Grabber; ok chan bool})
 	grabberDelChannel = make(chan int64)
-	okChannel = make(chan bool)
 	states = make(map[int64]map[string]interface{})
 
 	for {
 		select {
-			case grabber := <-grabberChannel:
+			case g := <-grabberChannel:
+				grabber := g.grabber
 				grabbers[grabber.Uid + grabber.Chat] = grabber
 				states[grabber.Uid + grabber.Chat] = make(map[string]interface{})
-				okChannel <- true
+				g.ok <- true
 			case id := <-grabberDelChannel:
 				delete(grabbers, id)
 				delete(states, id)
@@ -48,8 +47,16 @@ func Grabber(uid int64, chat int64) (string, types.CommandProcessor) {
 // Grab all the non-command inputs in the current session
 // Returns the state storage object
 func SetGrabber(cmd types.Grabber) *map[string]interface{} {
-	grabberChannel <- cmd
-	<-okChannel // Wait
+	ok := make(chan bool)
+	grabberChannel <- struct {
+		grabber types.Grabber
+		ok chan bool
+	} {
+		grabber: cmd,
+		ok: ok,
+	}
+	<-ok // Wait
+	close(ok)
 	return GrabberState(cmd.Uid, cmd.Chat)
 }
 
