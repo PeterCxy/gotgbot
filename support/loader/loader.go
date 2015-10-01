@@ -6,6 +6,7 @@ import (
 	"github.com/PeterCxy/gotgbot/support/help"
 
 	"github.com/PeterCxy/gotgbot/misc"
+	"github.com/PeterCxy/gotgbot/scholar"
 )
 
 func LoadModules(tg *telegram.Telegram, config map[string]interface{}) (types.CommandMap, types.Command) {
@@ -20,6 +21,11 @@ func LoadModules(tg *telegram.Telegram, config map[string]interface{}) (types.Co
 
 	// Misc
 	if d := misc.Setup(tg, config, modules, &ret); d.Processor != nil {
+		def = d
+	}
+
+	// Scholar
+	if d := scholar.Setup(tg, config, modules, &ret); d.Processor != nil {
 		def = d
 	}
 
