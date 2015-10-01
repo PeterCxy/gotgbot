@@ -18,7 +18,7 @@ type Misc struct {
 }
 
 func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[string]bool, cmds *types.CommandMap) types.Command {
-	if val, ok := modules["help"]; !ok || val {
+	if val, ok := modules["misc"]; !ok || val {
 		misc := &Misc{tg: t}
 
 		// Echo
