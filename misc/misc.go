@@ -3,7 +3,10 @@ package misc
 
 import (
 	"strings"
+	"strconv"
 	"time"
+	"fmt"
+	"math/rand"
 
 	telegram "github.com/PeterCxy/gotelegram"
 	"github.com/PeterCxy/gotgbot/support/types"
@@ -32,6 +35,17 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 			Name: "remind",
 			ArgNum: 0,
 			Desc: "Remind you of something after a period of time",
+			Processor: misc,
+		}
+
+		// Choose
+		(*cmds)["choose"] = types.Command {
+			Name: "choose",
+			Args: "<choices> <format>...",
+			ArgNum: -1,
+			Desc: `Choose from <choices> and format the result with <format>
+			<choices> format: item1choice1,item1hoice2;item2choice1,item2choice2;[start-end]. Wrap with quotes if containing spaces.
+			<format> is a printf-like format string. Each item in <choice> is mapped to a parameter for printf.`,
 			Processor: misc,
 		}
 
@@ -76,6 +90,8 @@ func (this *Misc) Command(name string, msg telegram.TObject, args []string) {
 				Chat: msg.ChatId(),
 				Processor: this,
 			})
+		case "choose":
+			this.choose(msg, args)
 	}
 }
 
@@ -100,5 +116,86 @@ func (this *Misc) Default(name string, msg telegram.TObject, state *map[string]i
 				utils.ReleaseGrabber(msg.FromId(), msg.ChatId())
 			}
 		}
+	}
+}
+
+func (this *Misc) choose(msg telegram.TObject, args []string) {
+	if len(args) <= 1 {
+		this.tg.ReplyToMessage(msg.MessageId(), "Please provide the output format.", msg.ChatId())
+	} else {
+		items := strings.Split(args[0], ";")
+		results := make([]interface{}, len(items))
+		for i, v := range items {
+			// Random number in a range
+			if strings.HasPrefix(v, "[") && strings.HasSuffix(v, "]") && strings.Contains(v, "-") {
+				v = v[1:len(v) - 1]
+				a := strings.Split(v, "-")
+				if len(a) == 2 {
+					start, err1 := strconv.ParseInt(a[0], 10, 64)
+					end, err2 := strconv.ParseInt(a[1], 10, 64)
+
+					if (err1 == nil) && (err2 == nil) {
+						r := float64(start) + rand.Float64() * float64(end - start)
+						results[i] = r
+						continue
+					}
+				}
+
+				this.tg.ReplyToMessage(msg.MessageId(), "Range format: [start-end]", msg.ChatId())
+				return
+			} else {
+				a := strings.Split(v, ",")
+				results[i] = a[rand.Intn(len(a))]
+			}
+		}
+
+		format := strings.Join(args[1:], " ")
+		tokens := ParseFormat(format)
+
+
+
+		// Now let's do the heavy type conversion stuff
+		i := 0
+		for _, t := range tokens {
+			if i >= len(results) {
+				break
+			}
+
+			if len(t) < 1 {
+				continue
+			}
+
+			switch t[len(t) - 1] {
+				case 'b', 'c', 'd', 'o', 'q', 'x', 'X', 'U':
+					// Integer
+					switch t := results[i].(type) {
+						case string:
+							results[i], _ = strconv.ParseInt(results[i].(string), 10, 64)
+						case float64:
+							results[i] = int64(results[i].(float64))
+						default:
+							_ = t
+					}
+				case 'e', 'E', 'f', 'F', 'g', 'G':
+					// Float
+					switch t := results[i].(type) {
+						case string:
+							results[i], _ = strconv.ParseFloat(results[i].(string), 64)
+						case int64:
+							results[i] = float64(results[i].(int64))
+						default:
+							_ = t
+					}
+			}
+
+			if t != "%" {
+				i += 1
+			}
+		}
+
+		this.tg.ReplyToMessage(
+			msg.MessageId(),
+			fmt.Sprintf(format, results...),
+			msg.ChatId())
 	}
 }
