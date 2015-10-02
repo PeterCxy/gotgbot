@@ -92,11 +92,12 @@ func (this *Chinese) Speak(id int64) string {
 
 	mo := strings.Split(model, " ")
 
+	tagType := -1
 	sentence := ""
 	for _, m := range mo {
 		word := ""
 		if isCustomTag(m) {
-			word = customUntag(m)
+			word = customUntag(m, &tagType)
 		} else {
 			word = randMember(this.redis, fmt.Sprintf("chn%dword%s", id, m))
 		}
@@ -164,18 +165,16 @@ func customTag(word string, tag string) string {
 	return tag
 }
 
-var tagType int = -1
-
-func customUntag(tag string) string {
+func customUntag(tag string, tagType *int) string {
 	if tag == "__my_start" {
-		tagType = rand.Intn(len(startTags))
-		return startTags[tagType]
+		(*tagType) = rand.Intn(len(startTags))
+		return startTags[(*tagType)]
 	} else if tag == "__my_end" {
-		t := tagType
+		t := (*tagType)
 		if t == -1 {
 			t = rand.Intn(len(endTags))
 		}
-		tagType = -1
+		(*tagType) = -1
 		return endTags[t]
 	} else if tag == "__my_bal" {
 		t := rand.Intn(len(balTags))
