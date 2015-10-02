@@ -125,24 +125,38 @@ func filterReg(text string, reg string) string {
 }
 
 // Scope start
-var startTags string = `([{（［【《『｢「‘“`
+var startTags []string = []string {
+	"(", "[", "{", "（", "［", "【", "《", "『", "｢", "「", "‘", "“"}
 // Scope end
-var endTags string = `)]}）］】》』｣」’”`
+var endTags []string = []string {
+	")", "]", "}", "）", "］", "】", "》", "』", "｣", "」", "’", "”"}
 // Balanced tags
-var balTags string = "`'\""
+var balTags []string = []string {
+	"`", "'", "\""}
 // Literials
-var litTags string = ".,?!;。，；？！…"
+var litTags []string = []string {
+	".", ",", "?", "!", ";", "。", "，", "；", "？", "！", "…"}
+
+func contains(arr []string, str string) bool {
+	for _, s := range arr {
+		if s == str {
+			return true
+		}
+	}
+
+	return false
+}
 
 func customTag(word string, tag string) string {
 	if tag == "x" {
 		// Only process unknown tags
-		if strings.Contains(startTags, word) {
+		if contains(startTags, word) {
 			tag = "__my_start"
-		} else if strings.Contains(endTags, word) {
+		} else if contains(endTags, word) {
 			tag = "__my_end"
-		} else if strings.Contains(balTags, word) {
+		} else if contains(balTags, word) {
 			tag = "__my_bal"
-		} else if strings.Contains(litTags, word) {
+		} else if contains(litTags, word) {
 			tag = "__my_lit_" + word
 		}
 	}
@@ -155,17 +169,17 @@ var tagType int = -1
 func customUntag(tag string) string {
 	if tag == "__my_start" {
 		tagType = rand.Intn(len(startTags))
-		return string(startTags[tagType])
+		return startTags[tagType]
 	} else if tag == "__my_end" {
 		t := tagType
 		if t == -1 {
 			t = rand.Intn(len(endTags))
 		}
 		tagType = -1
-		return string(endTags[t])
+		return endTags[t]
 	} else if tag == "__my_bal" {
 		t := rand.Intn(len(balTags))
-		return string(balTags[t])
+		return balTags[t]
 	} else if strings.HasPrefix(tag, "__my_lit") {
 		return tag[9:]
 	} else {
