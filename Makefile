@@ -10,6 +10,7 @@ SOURCES := \
 	support/utils/*.go \
 	misc/*.go \
 	scholar/*.go \
+	chinese/*.go \
 
 .PHONY: clean all test
 

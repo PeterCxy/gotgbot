@@ -97,7 +97,8 @@ func handle(msg telegram.TObject) {
 		// Distribute to grabbers
 		name, processor := utils.Grabber(msg.FromId(), msg.ChatId())
 		processor.Default(name, msg, utils.GrabberState(msg.FromId(), msg.ChatId()))
+	} else if Default.Processor != nil {
+		// Distribute to default processor
+		Default.Processor.Default(Default.Name, msg, nil)
 	}
-
-	// TODO Distribute to default processor
 }
