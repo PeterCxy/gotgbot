@@ -162,7 +162,7 @@ func customUntag(tag string) string {
 			t = rand.Intn(len(endTags))
 		}
 		tagType = -1
-		return string(endTags[tagType])
+		return string(endTags[t])
 	} else if tag == "__my_bal" {
 		t := rand.Intn(len(balTags))
 		return string(balTags[t])
