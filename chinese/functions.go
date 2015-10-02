@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 	"fmt"
+	"math/rand"
 
 	"github.com/huichen/sego"
 	"gopkg.in/redis.v3"
@@ -78,6 +79,38 @@ func (this *Chinese) Learn(text string, id int64) {
 	addMember(this.redis, fmt.Sprintf("chn%dmodels", id), model)
 }
 
+func (this *Chinese) Speak(id int64) string {
+	model := randMember(this.redis, fmt.Sprintf("chn%dmodels", id))
+
+	if model == "" {
+		return ""
+	}
+
+	if this.debug {
+		log.Printf("model = %s", model)
+	}
+
+	mo := strings.Split(model, " ")
+
+	sentence := ""
+	for _, m := range mo {
+		word := ""
+		if isCustomTag(m) {
+			word = customUntag(m)
+		} else {
+			word = randMember(this.redis, fmt.Sprintf("chn%dword%s", id, m))
+		}
+
+		if word == "" {
+			continue
+		}
+
+		sentence += word
+	}
+
+	return sentence
+}
+
 func filter(text string) string {
 	text = filterReg(text, `^([[(<].*? ?[\])>] )+`)
 	text = filterReg(text, `([^<]*>|[^<>]*<\/)(([a-z][0-9a-z]*:)\/\/[a-z0-9&#=.\/\-?_]+)`)
@@ -117,8 +150,49 @@ func customTag(word string, tag string) string {
 	return tag
 }
 
+var tagType int = -1
+
+func customUntag(tag string) string {
+	if tag == "__my_start" {
+		tagType = rand.Intn(len(startTags))
+		return string(startTags[tagType])
+	} else if tag == "__my_end" {
+		t := tagType
+		if t == -1 {
+			t = rand.Intn(len(endTags))
+		}
+		tagType = -1
+		return string(endTags[tagType])
+	} else if tag == "__my_bal" {
+		t := rand.Intn(len(balTags))
+		return string(balTags[t])
+	} else if strings.HasPrefix(tag, "__my_lit") {
+		return tag[9:]
+	} else {
+		// Should never reach here
+		return ""
+	}
+}
+
 func isCustomTag(tag string) bool {
 	return strings.HasPrefix(tag, "__my_")
+}
+
+func weightedRandom(max int64) int64 {
+	total := (1 + max) * max / 2
+	r := rand.Int63n(total)
+	var t int64 = 0
+	var i int64 = 0
+
+	for i = 0; i < max; i++ {
+		t += i
+
+		if t >= r {
+			return i
+		}
+	}
+
+	return -1
 }
 
 func addMember(c *redis.Client, setName string, member string) {
@@ -150,6 +224,28 @@ func addMember(c *redis.Client, setName string, member string) {
 			panic(err)
 		}
 	}
+}
+
+func randMember(c *redis.Client, setName string) string {
+	max, err1 := c.ZCard(setName).Result()
+
+	if err1 == redis.Nil {
+		return ""
+	} else if err1 != nil {
+		panic(err1)
+	}
+
+	index := weightedRandom(max)
+
+	m, err2 := c.ZRange(setName, index, index).Result()
+
+	if (err2 == redis.Nil) || (len(m) == 0) {
+		return ""
+	} else if err2 != nil {
+		panic(err2)
+	}
+
+	return m[0]
 }
 
 func logTokens(segments []sego.Segment) {

@@ -45,6 +45,13 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 			Processor: c,
 		}
 
+		(*cmds)["speak"] = types.Command {
+			Name: "speak",
+			ArgNum: 0,
+			Desc: "Speak a Chinese sentence based on previously learned data",
+			Processor: c,
+		}
+
 		pong, err := c.redis.Ping().Result()
 
 		if (err != nil) || (pong != "PONG") {
@@ -63,6 +70,8 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 func (this *Chinese) Command(name string, msg telegram.TObject, args []string) {
 	if name == "learn" {
 		this.Learn(strings.Join(args, " "), msg.ChatId())
+	} else if name == "speak" {
+		this.tg.SendMessage(this.Speak(msg.ChatId()), msg.ChatId())
 	}
 }
 
