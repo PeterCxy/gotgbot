@@ -8,6 +8,7 @@ import (
 	"github.com/PeterCxy/gotgbot/misc"
 	"github.com/PeterCxy/gotgbot/scholar"
 	"github.com/PeterCxy/gotgbot/chinese"
+	"github.com/PeterCxy/gotgbot/script"
 )
 
 func LoadModules(tg *telegram.Telegram, config map[string]interface{}) (types.CommandMap, types.Command) {
@@ -32,6 +33,11 @@ func LoadModules(tg *telegram.Telegram, config map[string]interface{}) (types.Co
 
 	// Chinese
 	if d := chinese.Setup(tg, config, modules, &ret); d.Processor != nil {
+		def = d
+	}
+
+	// Script
+	if d := script.Setup(tg, config, modules, &ret); d.Processor != nil {
 		def = d
 	}
 
