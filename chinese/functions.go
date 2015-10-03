@@ -7,6 +7,7 @@ import (
 	"time"
 	"fmt"
 	"math/rand"
+	"hash/crc32"
 
 	"github.com/huichen/sego"
 	"gopkg.in/redis.v3"
@@ -80,6 +81,9 @@ func (this *Chinese) Learn(text string, id int64) {
 }
 
 func (this *Chinese) Speak(id int64) string {
+	// Random seed
+	rand.Seed(time.Now().Unix())
+
 	model := randMember(this.redis, fmt.Sprintf("chn%dmodels", id))
 
 	if model == "" {
@@ -114,6 +118,9 @@ func (this *Chinese) Speak(id int64) string {
 
 func (this *Chinese) Answer(text string, id int64) string {
 	text = strings.Trim(filter(text), " \n")
+
+	// Set text as seed of random
+	rand.Seed(int64(crc32.ChecksumIEEE([]byte(text))))
 
 	model := randMember(this.redis, fmt.Sprintf("chn%dmodels", id))
 
