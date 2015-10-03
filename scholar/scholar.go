@@ -79,7 +79,7 @@ func (this *Scholar) Command(name string, msg telegram.TObject, args []string) {
 				hasNext = false
 			}
 
-			this.tg.SendMessage(formatGoogle(res, hasNext), msg.ChatId())
+			this.tg.SendMessageNoPreview(formatGoogle(res, hasNext), msg.ChatId())
 
 			if hasNext {
 				state := utils.SetGrabber(types.Grabber {
@@ -108,7 +108,7 @@ func (this *Scholar) Default(name string, msg telegram.TObject, state *map[strin
 		this.tg.SendChatAction("typing", msg.ChatId())
 		res, hasNext := Google(query, start, 5, this.ipv6)
 
-		this.tg.SendMessage(formatGoogle(res, hasNext), msg.ChatId())
+		this.tg.SendMessageNoPreview(formatGoogle(res, hasNext), msg.ChatId())
 
 		if hasNext {
 			(*state)["start"] = start + len(res)
