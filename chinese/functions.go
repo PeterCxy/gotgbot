@@ -112,6 +112,55 @@ func (this *Chinese) Speak(id int64) string {
 	return sentence
 }
 
+func (this *Chinese) Answer(text string, id int64) string {
+	text = strings.Trim(filter(text), " \n")
+
+	model := randMember(this.redis, fmt.Sprintf("chn%dmodels", id))
+
+	if model == "" {
+		return ""
+	}
+
+	segments := this.seg.Segment([]byte(text))
+
+	sentence := ""
+	tags := strings.Split(model, " ")
+	tagType := -1
+	for _, t := range tags {
+		word := ""
+		if isCustomTag(t) {
+			word = customUntag(t, &tagType)
+		} else {
+			for _, s := range segments {
+				word = randMember(this.redis, fmt.Sprintf("chn%d%scoexist%s", id, t, s.Token().Text()))
+
+				if word != "" {
+
+					if this.debug {
+						log.Printf("Got word %s for %s", word, t)
+					}
+
+					break
+				}
+			}
+
+			if word == "" {
+				if this.debug {
+					log.Printf("Falling back for tag %s", t)
+				}
+
+				word = randMember(this.redis, fmt.Sprintf("chn%dword%s", id, t))
+			}
+		}
+
+		if word != "" {
+			sentence += word
+		}
+	}
+
+	return sentence
+}
+
 func filter(text string) string {
 	text = filterReg(text, `^([[(<].*? ?[\])>] )+`)
 	text = filterReg(text, `([^<]*>|[^<>]*<\/)(([a-z][0-9a-z]*:)\/\/[a-z0-9&#=.\/\-?_]+)`)
@@ -193,6 +242,11 @@ func isCustomTag(tag string) bool {
 
 func weightedRandom(max int64) int64 {
 	total := (1 + max) * max / 2
+
+	if total <= 1 {
+		return -1
+	}
+
 	r := rand.Int63n(total)
 	var t int64 = 0
 	var i int64 = 0

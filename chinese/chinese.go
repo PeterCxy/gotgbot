@@ -52,6 +52,14 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 			Processor: c,
 		}
 
+		(*cmds)["answer"] = types.Command {
+			Name: "answer",
+			Args: "[question]",
+			ArgNum: -1,
+			Desc: "Answer to [question]. If no [question] provided, answer to the message you reply to.",
+			Processor: c,
+		}
+
 		pong, err := c.redis.Ping().Result()
 
 		if (err != nil) || (pong != "PONG") {
@@ -72,6 +80,26 @@ func (this *Chinese) Command(name string, msg telegram.TObject, args []string) {
 		this.Learn(strings.Join(args, " "), msg.ChatId())
 	} else if name == "speak" {
 		this.tg.SendMessage(this.Speak(msg.ChatId()), msg.ChatId())
+	} else if name == "answer" {
+		text := strings.Join(args, " ")
+		id := msg.MessageId()
+
+		if (text == "") && (msg["reply_to_message"] != nil) && (msg.ReplyToMessage()["text"] != nil) {
+			text = msg.ReplyToMessage()["text"].(string)
+			id = msg.ReplyToMessage().MessageId()
+		}
+
+		text = strings.Trim(text, " \n")
+
+		if text == "" {
+			this.tg.ReplyToMessage(msg.MessageId(), "Please provide a question or reply to a message for me to answer.", msg.ChatId())
+		} else {
+			r := this.Answer(text, msg.ChatId())
+
+			if r != "" {
+				this.tg.ReplyToMessage(id, r, msg.ChatId())
+			}
+		}
 	}
 }
 
