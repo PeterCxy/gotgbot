@@ -93,12 +93,17 @@ func handle(msg telegram.TObject) {
 				str,
 				msg.ChatId())
 		}
-	} else if utils.HasGrabber(msg.FromId(), msg.ChatId()) {
-		// Distribute to grabbers
-		name, processor := utils.Grabber(msg.FromId(), msg.ChatId())
-		processor.Default(name, msg, utils.GrabberState(msg.FromId(), msg.ChatId()))
-	} else if Default.Processor != nil {
-		// Distribute to default processor
-		Default.Processor.Default(Default.Name, msg, nil)
+	} else {
+		if utils.HasGrabber(msg.FromId(), msg.ChatId()) {
+			// Distribute to grabbers
+			name, processor := utils.Grabber(msg.FromId(), msg.ChatId())
+			processor.Default(name, msg, utils.GrabberState(msg.FromId(), msg.ChatId()))
+		}
+
+		// Grabbers and default processors are both called
+		if Default.Processor != nil {
+			// Distribute to default processor
+			Default.Processor.Default(Default.Name, msg, nil)
+		}
 	}
 }
