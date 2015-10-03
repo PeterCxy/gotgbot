@@ -84,6 +84,11 @@ func handle(msg telegram.TObject) {
 		}
 
 		command := Commands[cmd]
+
+		if command.Processor == nil {
+			return
+		}
+
 		if (command.ArgNum < 0) || (command.ArgNum == len(args)) {
 			command.Processor.Command(cmd, msg, args)
 		} else {
