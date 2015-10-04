@@ -67,7 +67,7 @@ func (this *Script) Command(name string, msg telegram.TObject, args []string) {
 				return time.Now().After(end)
 			}).SetInput(func(out string) string {
 				this.tg.ReplyToMessage(msg.MessageId(),
-					fmt.Sprintf("Output: %s\nInput needed. Now send me the input data in 30 seconds. If nothing received, the interpreter will be interrupted.\nSend /cancel to force interrupt.", out),
+					fmt.Sprintf("Output: %s\nInput needed. Now send me the input data in 60 seconds. If nothing received, the interpreter will be interrupted.\nSend /cancel to force interrupt.", out),
 					msg.ChatId())
 
 				status := utils.SetGrabber(types.Grabber {
