@@ -92,7 +92,7 @@ func (this *Script) Command(name string, msg telegram.TObject, args []string) {
 					case result := <-input:
 						end = time.Now().Add(dur)
 						return result
-					case <-time.After(30 * time.Second):
+					case <-time.After(60 * time.Second):
 						utils.ReleaseGrabber(msg.FromId(), msg.ChatId())
 						this.tg.ReplyToMessage(msg.MessageId(), "Input timed out. Interrupting.", msg.ChatId())
 						return string(0)
