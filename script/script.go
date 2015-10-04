@@ -24,6 +24,14 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 			script.timeout = int(val.(float64))
 		}
 
+		// Code
+		(*cmds)["code"] = types.Command {
+			Name: "code",
+			ArgNum: 0,
+			Desc: "Store some code in memory and execute it as a script.",
+			Processor: script,
+		}
+
 		// Brainfuck
 		(*cmds)["brainfuck"] = types.Command {
 			Name: "brainfuck",
@@ -38,7 +46,17 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 }
 
 func (this *Script) Command(name string, msg telegram.TObject, args []string) {
-	if name == "brainfuck" {
+	if name == "code" {
+		this.tg.ReplyToMessage(msg.MessageId(), "Now send me some code. You can split it into multiple messages.\nAfter finishing, send 'exec script_type' to execute it as a script.", msg.ChatId())
+		status := utils.SetGrabber(types.Grabber {
+			Name: "code",
+			Uid: msg.FromId(),
+			Chat: msg.ChatId(),
+			Processor: this,
+		})
+
+		(*status)["code"] = ""
+	} else if name == "brainfuck" {
 		code := strings.Trim(args[0], " \n")
 
 		if code == "" {
@@ -99,7 +117,29 @@ func (this *Script) Command(name string, msg telegram.TObject, args []string) {
 }
 
 func (this *Script) Default(name string, msg telegram.TObject, state *map[string]interface{}) {
-	if name == "brainfuck" {
+	if name == "code" {
+		if msg["text"] == nil {
+			return
+		}
+
+		str := msg["text"].(string)
+
+		if !strings.HasPrefix(strings.ToLower(str), "exec ") {
+			(*state)["code"] = (*state)["code"].(string) + "\n" + str
+
+			if len((*state)["code"].(string)) >= 131070 {
+				this.tg.SendMessage("Code too long. Maximum: 131KiB", msg.ChatId())
+				utils.ReleaseGrabber(msg.FromId(), msg.ChatId())
+			} else {
+				this.tg.SendMessage("Code received. If you have finished, send 'exec script_type' to execute. Send /cancel to cancel.", msg.ChatId())
+			}
+		} else {
+			code := (*state)["code"].(string)
+			utils.ReleaseGrabber(msg.FromId(), msg.ChatId())
+			this.Command(strings.ToLower(str[5:]), msg, []string{code})
+		}
+
+	} else if name == "brainfuck" {
 		if msg["text"] != nil {
 			text := strings.Trim(msg["text"].(string), " ")
 
