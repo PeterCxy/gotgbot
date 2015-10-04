@@ -4,6 +4,7 @@ package script
 import (
 	"strings"
 	"time"
+	"fmt"
 
 	"github.com/PeterCxy/gotelegram"
 	"github.com/PeterCxy/gobf"
@@ -46,8 +47,10 @@ func (this *Script) Command(name string, msg telegram.TObject, args []string) {
 			end := time.Now().Add(time.Duration(int64(this.timeout)) * time.Second)
 			res, err := brainfuck.New().SetInterrupter(func() bool {
 				return time.Now().After(end)
-			}).SetInput(func() string {
-				this.tg.ReplyToMessage(msg.MessageId(), "Input needed. Now send me the input data in 30 seconds.", msg.ChatId())
+			}).SetInput(func(out string) string {
+				this.tg.ReplyToMessage(msg.MessageId(),
+					fmt.Sprintf("Output: %s\nInput needed. Now send me the input data in 30 seconds. If nothing received, the interpreter will be interrupted.\nSend /cancel to force interrupt.", out),
+					msg.ChatId())
 
 				status := utils.SetGrabber(types.Grabber {
 					Name: "brainfuck",
@@ -73,7 +76,7 @@ func (this *Script) Command(name string, msg telegram.TObject, args []string) {
 						return result
 					case <-time.After(30 * time.Second):
 						utils.ReleaseGrabber(msg.FromId(), msg.ChatId())
-						this.tg.ReplyToMessage(msg.MessageId(), "Input timed out.", msg.ChatId())
+						this.tg.ReplyToMessage(msg.MessageId(), "Input timed out. Interrupting.", msg.ChatId())
 						return string(0)
 				}
 
