@@ -145,7 +145,7 @@ func (this *Script) Default(name string, msg telegram.TObject, state *map[string
 
 			if text != "" {
 				input := (*state)["chan"].(chan string)
-				input <- text
+				input <- strings.Replace(text, "\\n", "\n", -1)
 				utils.ReleaseGrabber(msg.FromId(), msg.ChatId())
 			}
 		}
