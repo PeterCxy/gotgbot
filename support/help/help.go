@@ -42,7 +42,7 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 func (this *Help) Command(name string, msg telegram.TObject, args []string) {
 	if name == "help" {
 		if !msg.Chat().IsGroup() {
-			str := ""
+			str := "Source code available at https://github.com/PeterCxy/gotgbot , written in Golang\n\n"
 			for _, v := range (*this.cmds) {
 				// Skip debug functions
 				if v.Debug {
