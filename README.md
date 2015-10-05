@@ -39,6 +39,12 @@ Modules are defined in every sub-package in this repo. To add new modules, make 
 
 Some modules may need specific configuration in the config file to work. See the module sources for details.
 
+A module can be disabled by setting it to `false` in config.
+
+Testing
+---
+Put config file to `test/test.json` and then run `make test`
+
 License
 ---
 See the file `LICENSE`
