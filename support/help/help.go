@@ -30,18 +30,22 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 
 func (this *Help) Command(name string, msg telegram.TObject, args []string) {
 	if name == "help" {
-		str := ""
-		for _, v := range (*this.cmds) {
-			// Skip debug functions
-			if v.Debug {
-				continue
-			}
+		if !msg.Chat().IsGroup() {
+			str := ""
+			for _, v := range (*this.cmds) {
+				// Skip debug functions
+				if v.Debug {
+					continue
+				}
 
-			str += fmt.Sprintf(
-				"/%s %s\n%s\n\n",
-				v.Name, v.Args, v.Desc)
+				str += fmt.Sprintf(
+					"/%s %s\n%s\n\n",
+					v.Name, v.Args, v.Desc)
+			}
+			this.tg.ReplyToMessage(msg.MessageId(), str, msg.ChatId())
+		} else {
+			this.tg.ReplyToMessage(msg.MessageId(), "Help only available in private chats.", msg.ChatId())
 		}
-		this.tg.ReplyToMessage(msg.MessageId(), str, msg.ChatId())
 	}
 }
 
