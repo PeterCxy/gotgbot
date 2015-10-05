@@ -7,6 +7,9 @@ import (
 
 	"github.com/ddliu/go-httpclient"
 	"github.com/PuerkitoBio/goquery"
+
+	"github.com/paulrosania/go-charset/charset"
+	_ "github.com/paulrosania/go-charset/data"
 )
 
 type GoogleResult struct {
@@ -29,20 +32,25 @@ func Google(query string, start int, num int, ipv6 bool) (ret []GoogleResult, ha
 		url = "https://ipv6.google.com/search"
 	}
 
-	res, err := httpclient.Get(url, map[string]string {
-		"hl": "en",
-		"q": query,
-		"start": fmt.Sprintf("%d", start),
-		"num": fmt.Sprintf("%d", num),
+	res, err := httpclient.
+		WithHeader("Accept-Charset", "utf-8").
+		Get(url, map[string]string {
+			"hl": "en",
+			"q": query,
+			"start": fmt.Sprintf("%d", start),
+			"num": fmt.Sprintf("%d", num),
 	})
 
+	r, _ := charset.NewReader("iso-8859-1", res.Body)
+
+	//defer r.Close()
 	defer res.Body.Close()
 
 	if (err != nil) || (res.StatusCode != 200) {
 		return
 	}
 
-	doc, errDoc := goquery.NewDocumentFromReader(res.Body)
+	doc, errDoc := goquery.NewDocumentFromReader(r)
 
 	if (errDoc != nil) {
 		return
