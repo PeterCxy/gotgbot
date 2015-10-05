@@ -12,6 +12,7 @@ SOURCES := \
 	scholar/*.go \
 	chinese/*.go \
 	script/*.go \
+	pictures/*.go \
 
 .PHONY: clean all test
 
