@@ -37,7 +37,7 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 			Name: "brainfuck",
 			Args: "<code>",
 			ArgNum: 1,
-			Desc: "Execute branfuck code",
+			Desc: "Execute brainfuck code",
 			Processor: script,
 		}
 	}
