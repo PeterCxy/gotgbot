@@ -8,6 +8,7 @@ import (
 
 	"github.com/PeterCxy/gotelegram"
 	"github.com/PeterCxy/gobf"
+	"github.com/PeterCxy/gogmh"
 	"github.com/PeterCxy/gotgbot/support/types"
 	"github.com/PeterCxy/gotgbot/support/utils"
 )
@@ -38,6 +39,15 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 			Args: "<code>",
 			ArgNum: 1,
 			Desc: "Execute brainfuck code",
+			Processor: script,
+		}
+
+		// Grass-Mud-Horse
+		(*cmds)["cnm"] = types.Command {
+			Name: "cnm",
+			Args: "<code>...",
+			ArgNum: -1,
+			Desc: "Execute Grass-Mud-Horse commands splitted with spaces. https://code.google.com/p/grass-mud-horse/wiki/A_Brife_To_GrassMudHorse_Language",
 			Processor: script,
 		}
 	}
@@ -112,6 +122,25 @@ func (this *Script) Command(name string, msg telegram.TObject, args []string) {
 
 				this.tg.ReplyToMessage(msg.MessageId(), res, msg.ChatId())
 			}
+		}
+	} else if name == "cnm" {
+		end := time.Now().Add(time.Duration(int64(this.timeout)) * time.Second)
+		res, err := gmh.New().SetInterrupter(func() bool {
+			return time.Now().After(end)
+		}).Exec(strings.FieldsFunc(strings.Join(args, " "), func(r rune) bool {
+			return (r == ' ') || (r == '\n')
+		}))
+
+		if err != nil {
+			this.tg.ReplyToMessage(msg.MessageId(), err.Error(), msg.ChatId())
+		} else {
+			res = strings.Trim(res, " \n")
+
+			if res == "" {
+				res = "Empty"
+			}
+
+			this.tg.ReplyToMessage(msg.MessageId(), res, msg.ChatId())
 		}
 	}
 }
