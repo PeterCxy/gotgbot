@@ -13,6 +13,7 @@ SOURCES := \
 	chinese/*.go \
 	script/*.go \
 	pictures/*.go \
+	barcode/*.go \
 
 .PHONY: clean all test
 
