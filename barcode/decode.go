@@ -20,7 +20,7 @@ func (this *Barcode) Decode(msg telegram.TObject) {
 		return
 	}
 	
-	p := this.tg.GetFile(photos[0].FileId())
+	p := this.tg.GetFile(photos[len(photos) - 1].FileId())
 	
 	if p == nil {
 		return
