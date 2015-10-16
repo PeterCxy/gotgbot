@@ -4,6 +4,7 @@ package barcode
 import (
 	"github.com/PeterCxy/gotelegram"
 	"github.com/PeterCxy/gotgbot/support/types"
+	"github.com/PeterCxy/gotgbot/support/utils"
 )
 
 type Barcode struct {
@@ -30,9 +31,22 @@ func (this *Barcode) Command(name string, msg telegram.TObject, args []string) {
 		if msg["reply_to_message"] != nil {
 			// Decode the message replied to
 			this.Decode(msg.ReplyToMessage())
+		} else {
+			// Decode from grabbed input
+			this.tg.ReplyToMessage(msg.MessageId(), "Now send me the picture to decode.", msg.ChatId())
+			utils.SetGrabber(types.Grabber {
+				Name: "barcode",
+				Uid: msg.FromId(),
+				Chat: msg.ChatId(),
+				Processor: this,
+			})
 		}
 	}
 }
 
 func (this *Barcode) Default(name string, msg telegram.TObject, state *map[string]interface{}) {
+	if name == "barcode" {
+		utils.ReleaseGrabber(msg.FromId(), msg.ChatId())
+		this.Decode(msg)
+	}
 }

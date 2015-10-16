@@ -20,6 +20,8 @@ func (this *Barcode) Decode(msg telegram.TObject) {
 		return
 	}
 	
+	this.tg.SendChatAction("typing", msg.ChatId())
+	
 	p := this.tg.GetFile(photos[len(photos) - 1].FileId())
 	
 	if p == nil {

@@ -65,12 +65,8 @@ func handle(msg telegram.TObject) {
 		args = telegram.ParseArgs(text)
 	}
 
-	if len(args) == 0 {
-		return
-	}
-
 	// A command
-	if strings.HasPrefix(args[0], "/") {
+	if (len(args) > 0) && strings.HasPrefix(args[0], "/") {
 		cmd := args[0][1:]
 		args = args[1:]
 
