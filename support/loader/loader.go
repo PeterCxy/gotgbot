@@ -2,15 +2,15 @@ package loader
 
 import (
 	telegram "github.com/PeterCxy/gotelegram"
-	"github.com/PeterCxy/gotgbot/support/types"
 	"github.com/PeterCxy/gotgbot/support/help"
+	"github.com/PeterCxy/gotgbot/support/types"
 
-	"github.com/PeterCxy/gotgbot/misc"
-	"github.com/PeterCxy/gotgbot/scholar"
-	"github.com/PeterCxy/gotgbot/chinese"
-	"github.com/PeterCxy/gotgbot/script"
-	"github.com/PeterCxy/gotgbot/pictures"
 	"github.com/PeterCxy/gotgbot/barcode"
+	"github.com/PeterCxy/gotgbot/chinese"
+	"github.com/PeterCxy/gotgbot/misc"
+	"github.com/PeterCxy/gotgbot/pictures"
+	"github.com/PeterCxy/gotgbot/scholar"
+	"github.com/PeterCxy/gotgbot/script"
 )
 
 func LoadModules(tg *telegram.Telegram, config map[string]interface{}) (types.CommandMap, types.Command) {
@@ -47,7 +47,7 @@ func LoadModules(tg *telegram.Telegram, config map[string]interface{}) (types.Co
 	if d := pictures.Setup(tg, config, modules, &ret); d.Processor != nil {
 		def = d
 	}
-	
+
 	// Barcode
 	if d := barcode.Setup(tg, config, modules, &ret); d.Processor != nil {
 		def = d

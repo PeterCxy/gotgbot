@@ -2,11 +2,11 @@
 package misc
 
 import (
-	"strings"
-	"strconv"
-	"time"
 	"fmt"
 	"math/rand"
+	"strconv"
+	"strings"
+	"time"
 
 	telegram "github.com/PeterCxy/gotelegram"
 	"github.com/PeterCxy/gotgbot/support/types"
@@ -22,26 +22,26 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 		misc := &Misc{tg: t}
 
 		// Echo
-		(*cmds)["echo"] = types.Command {
-			Name: "echo",
-			Args: "<text>",
-			ArgNum: 1,
-			Desc: "Echo <text>",
+		(*cmds)["echo"] = types.Command{
+			Name:      "echo",
+			Args:      "<text>",
+			ArgNum:    1,
+			Desc:      "Echo <text>",
 			Processor: misc,
 		}
 
 		// Remind
-		(*cmds)["remind"] = types.Command {
-			Name: "remind",
-			ArgNum: 0,
-			Desc: "Remind you of something after a period of time",
+		(*cmds)["remind"] = types.Command{
+			Name:      "remind",
+			ArgNum:    0,
+			Desc:      "Remind you of something after a period of time",
 			Processor: misc,
 		}
 
 		// Choose
-		(*cmds)["choose"] = types.Command {
-			Name: "choose",
-			Args: "<choices> <format>...",
+		(*cmds)["choose"] = types.Command{
+			Name:   "choose",
+			Args:   "<choices> <format>...",
 			ArgNum: -1,
 			Desc: `Choose from <choices> and format the result with <format>
 			<choices> format: item1choice1,item1hoice2;item2choice1,item2choice2;[start-end]. Wrap with quotes if containing spaces.
@@ -50,20 +50,20 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 		}
 
 		// Cancel
-		(*cmds)["cancel"] = types.Command {
-			Name: "cancel",
-			ArgNum: 0,
-			Desc: "Cancel the current session with this bot",
+		(*cmds)["cancel"] = types.Command{
+			Name:      "cancel",
+			ArgNum:    0,
+			Desc:      "Cancel the current session with this bot",
 			Processor: misc,
 		}
 
 		// Debug parse
-		(*cmds)["parse"] = types.Command {
-			Name: "parse",
-			Args: "arguments",
-			ArgNum: -1,
-			Desc: "Parse argument list [debug]",
-			Debug: true,
+		(*cmds)["parse"] = types.Command{
+			Name:      "parse",
+			Args:      "arguments",
+			ArgNum:    -1,
+			Desc:      "Parse argument list [debug]",
+			Debug:     true,
 			Processor: misc,
 		}
 	}
@@ -73,25 +73,25 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 
 func (this *Misc) Command(name string, msg telegram.TObject, args []string) {
 	switch name {
-		case "echo":
-			this.tg.SendMessage(args[0], msg.ChatId())
-		case "parse":
-			this.tg.ReplyToMessage(msg.MessageId(), strings.Join(args, "\n"), msg.ChatId())
-		case "cancel":
-			if utils.HasGrabber(msg.FromId(), msg.ChatId()) {
-				utils.ReleaseGrabber(msg.FromId(), msg.ChatId())
-				this.tg.SendMessage("Current session cancelled", msg.ChatId())
-			}
-		case "remind":
-			this.tg.ReplyToMessage(msg.MessageId(), "What do you want me to remind you of?", msg.ChatId())
-			utils.SetGrabber(types.Grabber {
-				Name: "remind",
-				Uid: msg.FromId(),
-				Chat: msg.ChatId(),
-				Processor: this,
-			})
-		case "choose":
-			this.choose(msg, args)
+	case "echo":
+		this.tg.SendMessage(args[0], msg.ChatId())
+	case "parse":
+		this.tg.ReplyToMessage(msg.MessageId(), strings.Join(args, "\n"), msg.ChatId())
+	case "cancel":
+		if utils.HasGrabber(msg.FromId(), msg.ChatId()) {
+			utils.ReleaseGrabber(msg.FromId(), msg.ChatId())
+			this.tg.SendMessage("Current session cancelled", msg.ChatId())
+		}
+	case "remind":
+		this.tg.ReplyToMessage(msg.MessageId(), "What do you want me to remind you of?", msg.ChatId())
+		utils.SetGrabber(types.Grabber{
+			Name:      "remind",
+			Uid:       msg.FromId(),
+			Chat:      msg.ChatId(),
+			Processor: this,
+		})
+	case "choose":
+		this.choose(msg, args)
 	}
 }
 
@@ -110,7 +110,7 @@ func (this *Misc) Default(name string, msg telegram.TObject, state *map[string]i
 				this.tg.ReplyToMessage(msg.MessageId(), "Yes, sir!", msg.ChatId())
 
 				utils.PostDelayed(func() {
-					this.tg.SendMessage("@" + msg.From()["username"].(string) + " " + text, msg.ChatId())
+					this.tg.SendMessage("@"+msg.From()["username"].(string)+" "+text, msg.ChatId())
 				}, duration)
 
 				utils.ReleaseGrabber(msg.FromId(), msg.ChatId())
@@ -128,14 +128,14 @@ func (this *Misc) choose(msg telegram.TObject, args []string) {
 		for i, v := range items {
 			// Random number in a range
 			if strings.HasPrefix(v, "[") && strings.HasSuffix(v, "]") && strings.Contains(v, "-") {
-				v = v[1:len(v) - 1]
+				v = v[1 : len(v)-1]
 				a := strings.Split(v, "-")
 				if len(a) == 2 {
 					start, err1 := strconv.ParseInt(a[0], 10, 64)
 					end, err2 := strconv.ParseInt(a[1], 10, 64)
 
 					if (err1 == nil) && (err2 == nil) {
-						r := float64(start) + rand.Float64() * float64(end - start)
+						r := float64(start) + rand.Float64()*float64(end-start)
 						results[i] = r
 						continue
 					}
@@ -152,8 +152,6 @@ func (this *Misc) choose(msg telegram.TObject, args []string) {
 		format := strings.Join(args[1:], " ")
 		tokens := ParseFormat(format)
 
-
-
 		// Now let's do the heavy type conversion stuff
 		i := 0
 		for _, t := range tokens {
@@ -165,27 +163,27 @@ func (this *Misc) choose(msg telegram.TObject, args []string) {
 				continue
 			}
 
-			switch t[len(t) - 1] {
-				case 'b', 'c', 'd', 'o', 'q', 'x', 'X', 'U':
-					// Integer
-					switch t := results[i].(type) {
-						case string:
-							results[i], _ = strconv.ParseInt(results[i].(string), 10, 64)
-						case float64:
-							results[i] = int64(results[i].(float64))
-						default:
-							_ = t
-					}
-				case 'e', 'E', 'f', 'F', 'g', 'G':
-					// Float
-					switch t := results[i].(type) {
-						case string:
-							results[i], _ = strconv.ParseFloat(results[i].(string), 64)
-						case int64:
-							results[i] = float64(results[i].(int64))
-						default:
-							_ = t
-					}
+			switch t[len(t)-1] {
+			case 'b', 'c', 'd', 'o', 'q', 'x', 'X', 'U':
+				// Integer
+				switch t := results[i].(type) {
+				case string:
+					results[i], _ = strconv.ParseInt(results[i].(string), 10, 64)
+				case float64:
+					results[i] = int64(results[i].(float64))
+				default:
+					_ = t
+				}
+			case 'e', 'E', 'f', 'F', 'g', 'G':
+				// Float
+				switch t := results[i].(type) {
+				case string:
+					results[i], _ = strconv.ParseFloat(results[i].(string), 64)
+				case int64:
+					results[i] = float64(results[i].(int64))
+				default:
+					_ = t
+				}
 			}
 
 			if t != "%" {

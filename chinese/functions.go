@@ -1,13 +1,13 @@
 package chinese
 
 import (
+	"fmt"
+	"hash/crc32"
 	"log"
+	"math/rand"
 	"regexp"
 	"strings"
 	"time"
-	"fmt"
-	"math/rand"
-	"hash/crc32"
 
 	"github.com/huichen/sego"
 	"gopkg.in/redis.v3"
@@ -48,7 +48,7 @@ func (this *Chinese) Learn(text string, id int64) {
 		}
 	}
 
-	if unrecognized >= int(float32(len(words)) * 0.6) {
+	if unrecognized >= int(float32(len(words))*0.6) {
 		// To many unrecognized words!
 		if this.debug {
 			log.Println("Too many unrecognized tags!")
@@ -182,16 +182,19 @@ func filterReg(text string, reg string) string {
 }
 
 // Scope start
-var startTags []string = []string {
+var startTags []string = []string{
 	"(", "[", "{", "（", "［", "【", "《", "『", "｢", "「", "‘", "“"}
+
 // Scope end
-var endTags []string = []string {
+var endTags []string = []string{
 	")", "]", "}", "）", "］", "】", "》", "』", "｣", "」", "’", "”"}
+
 // Balanced tags
-var balTags []string = []string {
+var balTags []string = []string{
 	"`", "'", "\""}
+
 // Literials
-var litTags []string = []string {
+var litTags []string = []string{
 	".", ",", "?", "!", ";", "。", "，", "；", "？", "！", "…"}
 
 func contains(arr []string, str string) bool {
@@ -279,8 +282,8 @@ func addMember(c *redis.Client, setName string, member string) {
 		score += 1
 	}
 
-	err := c.ZAdd(setName, redis.Z {
-		Score: score,
+	err := c.ZAdd(setName, redis.Z{
+		Score:  score,
 		Member: member,
 	}).Err()
 
@@ -292,7 +295,7 @@ func addMember(c *redis.Client, setName string, member string) {
 		// Add expiration
 		log.Printf("Adding expiration to %s", setName)
 
-		err = c.Expire(setName, 48 * time.Hour).Err()
+		err = c.Expire(setName, 48*time.Hour).Err()
 
 		if err != nil {
 			panic(err)

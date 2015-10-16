@@ -1,14 +1,14 @@
 package main
 
 import (
-	"os"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
 	"log"
+	"os"
 
 	telegram "github.com/PeterCxy/gotelegram"
-	"github.com/PeterCxy/gotgbot/support/types"
 	"github.com/PeterCxy/gotgbot/support/loader"
+	"github.com/PeterCxy/gotgbot/support/types"
 )
 
 var Telegram *telegram.Telegram

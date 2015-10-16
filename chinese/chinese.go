@@ -2,20 +2,20 @@
 package chinese
 
 import (
-	"strings"
 	"errors"
+	"strings"
 
-	"gopkg.in/redis.v3"
 	"github.com/huichen/sego"
+	"gopkg.in/redis.v3"
 
 	telegram "github.com/PeterCxy/gotelegram"
 	"github.com/PeterCxy/gotgbot/support/types"
 )
 
 type Chinese struct {
-	tg *telegram.Telegram
+	tg    *telegram.Telegram
 	redis *redis.Client
-	seg sego.Segmenter
+	seg   sego.Segmenter
 	debug bool
 }
 
@@ -23,12 +23,12 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 	if val, ok := modules["chinese"]; !ok || val {
 		var s sego.Segmenter
 		s.LoadDictionary(config["dict"].(string))
-		c := &Chinese {
+		c := &Chinese{
 			tg: t,
-			redis: redis.NewClient(&redis.Options {
-				Addr: config["redis"].(string),
+			redis: redis.NewClient(&redis.Options{
+				Addr:     config["redis"].(string),
 				Password: "",
-				DB: int64(config["redis_db"].(float64)),
+				DB:       int64(config["redis_db"].(float64)),
 			}),
 			seg: s,
 		}
@@ -37,26 +37,26 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 			c.debug = config["debug"].(bool)
 		}
 
-		(*cmds)["learn"] = types.Command {
-			Name: "learn",
-			Args: "<expr>",
-			ArgNum: -1,
-			Desc: "Learn a Chinese expression",
+		(*cmds)["learn"] = types.Command{
+			Name:      "learn",
+			Args:      "<expr>",
+			ArgNum:    -1,
+			Desc:      "Learn a Chinese expression",
 			Processor: c,
 		}
 
-		(*cmds)["speak"] = types.Command {
-			Name: "speak",
-			ArgNum: 0,
-			Desc: "Speak a Chinese sentence based on previously learned data",
+		(*cmds)["speak"] = types.Command{
+			Name:      "speak",
+			ArgNum:    0,
+			Desc:      "Speak a Chinese sentence based on previously learned data",
 			Processor: c,
 		}
 
-		(*cmds)["answer"] = types.Command {
-			Name: "answer",
-			Args: "[question]",
-			ArgNum: -1,
-			Desc: "Answer to [question]. If no [question] provided, answer to the message you reply to.",
+		(*cmds)["answer"] = types.Command{
+			Name:      "answer",
+			Args:      "[question]",
+			ArgNum:    -1,
+			Desc:      "Answer to [question]. If no [question] provided, answer to the message you reply to.",
 			Processor: c,
 		}
 
@@ -66,8 +66,8 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 			panic(errors.New("Cannot PING redis"))
 		}
 
-		return types.Command {
-			Name: "chn",
+		return types.Command{
+			Name:      "chn",
 			Processor: c,
 		}
 	}

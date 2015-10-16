@@ -15,10 +15,13 @@ SOURCES := \
 	pictures/*.go \
 	barcode/*.go \
 
-.PHONY: clean all test
+.PHONY: clean all test fmt
 
 clean:
 	rm -r $(FILE)
+
+fmt:
+	gofmt -w -s ./
 
 $(FILE): $(SOURCES)
 	cd $(EXEC) && go install

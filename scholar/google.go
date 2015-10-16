@@ -5,16 +5,16 @@ import (
 	"fmt"
 	qs "net/url"
 
-	"github.com/ddliu/go-httpclient"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/ddliu/go-httpclient"
 
 	"github.com/paulrosania/go-charset/charset"
 	_ "github.com/paulrosania/go-charset/data"
 )
 
 type GoogleResult struct {
-	title string
-	url string
+	title   string
+	url     string
 	summary string
 }
 
@@ -34,11 +34,11 @@ func Google(query string, start int, num int, ipv6 bool) (ret []GoogleResult, ha
 
 	res, err := httpclient.
 		WithHeader("Accept-Charset", "utf-8").
-		Get(url, map[string]string {
-			"hl": "en",
-			"q": query,
-			"start": fmt.Sprintf("%d", start),
-			"num": fmt.Sprintf("%d", num),
+		Get(url, map[string]string{
+		"hl":    "en",
+		"q":     query,
+		"start": fmt.Sprintf("%d", start),
+		"num":   fmt.Sprintf("%d", num),
 	})
 
 	r, _ := charset.NewReader("iso-8859-1", res.Body)
@@ -52,7 +52,7 @@ func Google(query string, start int, num int, ipv6 bool) (ret []GoogleResult, ha
 
 	doc, errDoc := goquery.NewDocumentFromReader(r)
 
-	if (errDoc != nil) {
+	if errDoc != nil {
 		return
 	}
 
@@ -70,9 +70,9 @@ func Google(query string, start int, num int, ipv6 bool) (ret []GoogleResult, ha
 
 			desc.Find("div").Remove()
 
-			ret = append(ret, GoogleResult {
-				title: link.First().Text(),
-				url: u.Query().Get("q"),
+			ret = append(ret, GoogleResult{
+				title:   link.First().Text(),
+				url:     u.Query().Get("q"),
 				summary: desc.Text(),
 			})
 		}

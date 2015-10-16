@@ -15,10 +15,10 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 		pictures := &Pictures{tg: t}
 
 		// Meizhi (gank.io girls)
-		(*cmds)["meizhi"] = types.Command {
-			Name: "meizhi",
-			ArgNum: 0,
-			Desc: "Random picture of girls from gank.io",
+		(*cmds)["meizhi"] = types.Command{
+			Name:      "meizhi",
+			ArgNum:    0,
+			Desc:      "Random picture of girls from gank.io",
 			Processor: pictures,
 		}
 	}

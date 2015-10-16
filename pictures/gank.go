@@ -2,11 +2,11 @@
 package pictures
 
 import (
-	"os"
-	"io/ioutil"
 	"encoding/json"
-	"time"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"time"
 
 	"github.com/ddliu/go-httpclient"
 

@@ -9,29 +9,29 @@ import (
 )
 
 type Help struct {
-	tg *telegram.Telegram
+	tg   *telegram.Telegram
 	cmds *types.CommandMap
 }
 
 func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[string]bool, cmds *types.CommandMap) types.Command {
 	if val, ok := modules["help"]; !ok || val {
-		help := &Help {
-			tg: t,
+		help := &Help{
+			tg:   t,
 			cmds: cmds,
 		}
 
-		(*cmds)["help"] = types.Command {
-			Name: "help",
-			Desc: "Show help information for this bot",
-			ArgNum: 0,
+		(*cmds)["help"] = types.Command{
+			Name:      "help",
+			Desc:      "Show help information for this bot",
+			ArgNum:    0,
 			Processor: help,
 		}
 
-		(*cmds)["father"] = types.Command {
-			Name: "father",
-			Desc: "For @BotFather",
-			ArgNum: 0,
-			Debug: true,
+		(*cmds)["father"] = types.Command{
+			Name:      "father",
+			Desc:      "For @BotFather",
+			ArgNum:    0,
+			Debug:     true,
 			Processor: help,
 		}
 	}
@@ -43,7 +43,7 @@ func (this *Help) Command(name string, msg telegram.TObject, args []string) {
 	if name == "help" {
 		if !msg.Chat().IsGroup() {
 			str := "Source code available at https://github.com/PeterCxy/gotgbot , written in Golang\n\n"
-			for _, v := range (*this.cmds) {
+			for _, v := range *this.cmds {
 				// Skip debug functions
 				if v.Debug {
 					continue
@@ -60,8 +60,10 @@ func (this *Help) Command(name string, msg telegram.TObject, args []string) {
 	} else if name == "father" {
 		if !msg.Chat().IsGroup() {
 			str := ""
-			for _, v := range (*this.cmds) {
-				if v.Debug { continue }
+			for _, v := range *this.cmds {
+				if v.Debug {
+					continue
+				}
 
 				str += fmt.Sprintf(
 					"%s - %s %s\n",

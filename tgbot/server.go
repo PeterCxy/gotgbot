@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log"
-	"time"
-	"strings"
 	"fmt"
+	"log"
+	"strings"
+	"time"
 
 	telegram "github.com/PeterCxy/gotelegram"
 	"github.com/PeterCxy/gotgbot/support/utils"
@@ -71,7 +71,7 @@ func handle(msg telegram.TObject) {
 		args = args[1:]
 
 		if strings.Contains(cmd, "@") {
-			if !strings.HasSuffix(cmd, "@" + BotName) {
+			if !strings.HasSuffix(cmd, "@"+BotName) {
 				// This command is not our business
 				return
 			} else {

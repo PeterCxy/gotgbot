@@ -5,18 +5,18 @@ import (
 )
 
 type Command struct {
-	Name string
-	Desc string
-	Args string
-	ArgNum int
-	Debug bool
+	Name      string
+	Desc      string
+	Args      string
+	ArgNum    int
+	Debug     bool
 	Processor CommandProcessor
 }
 
 type Grabber struct {
-	Name string
-	Uid int64
-	Chat int64
+	Name      string
+	Uid       int64
+	Chat      int64
 	Processor CommandProcessor
 }
 

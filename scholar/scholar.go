@@ -13,7 +13,7 @@ import (
 )
 
 type Scholar struct {
-	tg *telegram.Telegram
+	tg   *telegram.Telegram
 	ipv6 bool
 }
 
@@ -22,20 +22,20 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 		scholar := &Scholar{tg: t}
 
 		// Calc
-		(*cmds)["calc"] = types.Command {
-			Name: "calc",
-			Args: "<expression>",
-			ArgNum: -1,
-			Desc: "Calculate <expression>, only math expression supported.",
+		(*cmds)["calc"] = types.Command{
+			Name:      "calc",
+			Args:      "<expression>",
+			ArgNum:    -1,
+			Desc:      "Calculate <expression>, only math expression supported.",
 			Processor: scholar,
 		}
 
 		// Google
-		(*cmds)["google"] = types.Command {
-			Name: "google",
-			Args: "<query>",
-			ArgNum: -1,
-			Desc: "Search Google for <query>",
+		(*cmds)["google"] = types.Command{
+			Name:      "google",
+			Args:      "<query>",
+			ArgNum:    -1,
+			Desc:      "Search Google for <query>",
 			Processor: scholar,
 		}
 
@@ -82,10 +82,10 @@ func (this *Scholar) Command(name string, msg telegram.TObject, args []string) {
 			this.tg.SendMessageNoPreview(formatGoogle(res, hasNext), msg.ChatId())
 
 			if hasNext {
-				state := utils.SetGrabber(types.Grabber {
-					Name: "google",
-					Uid: msg.FromId(),
-					Chat: msg.ChatId(),
+				state := utils.SetGrabber(types.Grabber{
+					Name:      "google",
+					Uid:       msg.FromId(),
+					Chat:      msg.ChatId(),
 					Processor: this,
 				})
 

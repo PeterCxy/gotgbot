@@ -14,15 +14,15 @@ type Barcode struct {
 func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[string]bool, cmds *types.CommandMap) types.Command {
 	if val, ok := modules["barcode"]; !ok || val {
 		barcode := &Barcode{tg: t}
-		
-		(*cmds)["barcode"] = types.Command {
-			Name: "barcode",
-			Desc: "Decode a barcode / qrcode. Reply to a message containing the picture of the code or call this command directly, I'll ask you for the picture.",
-			ArgNum: -1,
+
+		(*cmds)["barcode"] = types.Command{
+			Name:      "barcode",
+			Desc:      "Decode a barcode / qrcode. Reply to a message containing the picture of the code or call this command directly, I'll ask you for the picture.",
+			ArgNum:    -1,
 			Processor: barcode,
 		}
 	}
-	
+
 	return types.Command{}
 }
 
@@ -34,10 +34,10 @@ func (this *Barcode) Command(name string, msg telegram.TObject, args []string) {
 		} else {
 			// Decode from grabbed input
 			this.tg.ReplyToMessage(msg.MessageId(), "Now send me the picture to decode.", msg.ChatId())
-			utils.SetGrabber(types.Grabber {
-				Name: "barcode",
-				Uid: msg.FromId(),
-				Chat: msg.ChatId(),
+			utils.SetGrabber(types.Grabber{
+				Name:      "barcode",
+				Uid:       msg.FromId(),
+				Chat:      msg.ChatId(),
 				Processor: this,
 			})
 		}

@@ -8,39 +8,45 @@ import (
 
 // Input "grabber"
 var grabbers map[int64]types.Grabber
-var grabberChannel chan struct {grabber types.Grabber; ok chan bool}
+var grabberChannel chan struct {
+	grabber types.Grabber
+	ok      chan bool
+}
 var grabberDelChannel chan int64
 var states map[int64]map[string]interface{}
 
 func GrabberDaemon() {
 	grabbers = make(map[int64]types.Grabber)
-	grabberChannel = make(chan struct {grabber types.Grabber; ok chan bool})
+	grabberChannel = make(chan struct {
+		grabber types.Grabber
+		ok      chan bool
+	})
 	grabberDelChannel = make(chan int64)
 	states = make(map[int64]map[string]interface{})
 
 	for {
 		select {
-			case g := <-grabberChannel:
-				grabber := g.grabber
-				grabbers[grabber.Uid + grabber.Chat] = grabber
-				states[grabber.Uid + grabber.Chat] = make(map[string]interface{})
-				g.ok <- true
-			case id := <-grabberDelChannel:
-				delete(grabbers, id)
-				delete(states, id)
+		case g := <-grabberChannel:
+			grabber := g.grabber
+			grabbers[grabber.Uid+grabber.Chat] = grabber
+			states[grabber.Uid+grabber.Chat] = make(map[string]interface{})
+			g.ok <- true
+		case id := <-grabberDelChannel:
+			delete(grabbers, id)
+			delete(states, id)
 		}
 	}
 }
 
 // Whether the current session is grabbed by a processor
 func HasGrabber(uid int64, chat int64) bool {
-	grabber := grabbers[uid + chat]
+	grabber := grabbers[uid+chat]
 	return grabber.Name != "" && grabber.Processor != nil
 }
 
 // Get the name and the processor of the current session
 func Grabber(uid int64, chat int64) (string, types.CommandProcessor) {
-	grabber := grabbers[uid + chat]
+	grabber := grabbers[uid+chat]
 	return grabber.Name, grabber.Processor
 }
 
@@ -50,10 +56,10 @@ func SetGrabber(cmd types.Grabber) *map[string]interface{} {
 	ok := make(chan bool)
 	grabberChannel <- struct {
 		grabber types.Grabber
-		ok chan bool
-	} {
+		ok      chan bool
+	}{
 		grabber: cmd,
-		ok: ok,
+		ok:      ok,
 	}
 	<-ok // Wait
 	close(ok)
@@ -69,7 +75,7 @@ func ReleaseGrabber(uid int64, chat int64) {
 
 // The state storage
 func GrabberState(uid int64, chat int64) *map[string]interface{} {
-	state := states[uid + chat]
+	state := states[uid+chat]
 	return &state
 }
 
