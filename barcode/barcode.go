@@ -18,7 +18,7 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 		(*cmds)["barcode"] = types.Command{
 			Name:      "barcode",
 			Desc:      "Decode a barcode / qrcode. Reply to a message containing the picture of the code or call this command directly, I'll ask you for the picture.",
-			ArgNum:    -1,
+			ArgNum:    0,
 			Processor: barcode,
 		}
 	}
