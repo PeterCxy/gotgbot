@@ -66,22 +66,28 @@ func (this *Script) Command(name string, msg telegram.TObject, args []string) {
 		})
 
 		(*status)["code"] = ""
-	} else if name == "brainfuck" {
-		code := strings.Trim(args[0], " \n")
+	} else if (name == "brainfuck") || (name == "cnm") {
+		code := ""
+		if name == "brainfuck" {
+			code = strings.Trim(args[0], " \n")
+		} else if name == "cnm" {
+			code = strings.Trim(strings.Join(args, " "), " \n")
+		}
 
 		if code == "" {
 			this.tg.ReplyToMessage(msg.MessageId(), "Code is empty.", msg.ChatId())
 		} else {
 			end := time.Now().Add(time.Duration(int64(this.timeout)) * time.Second)
-			res, err := brainfuck.New().SetInterrupter(func() bool {
+			interrupterFunc := func() bool {
 				return time.Now().After(end)
-			}).SetInput(func(out string) string {
+			}
+			inputFunc := func(out string) string {
 				this.tg.ReplyToMessage(msg.MessageId(),
 					fmt.Sprintf("Output: %s\nInput needed. Now send me the input data in 60 seconds. If nothing received, the interpreter will be interrupted.\nSend /cancel to force interrupt.", out),
 					msg.ChatId())
 
 				status := utils.SetGrabber(types.Grabber{
-					Name:      "brainfuck",
+					Name:      "input",
 					Uid:       msg.FromId(),
 					Chat:      msg.ChatId(),
 					Processor: this,
@@ -109,7 +115,24 @@ func (this *Script) Command(name string, msg telegram.TObject, args []string) {
 				}
 
 				return string(0)
-			}).Exec(code)
+			}
+
+			var res string
+			var err error
+
+			if name == "brainfuck" {
+				res, err = brainfuck.New().
+					SetInterrupter(interrupterFunc).
+					SetInput(inputFunc).
+					Exec(code)
+			} else if name == "cnm" {
+				res, err = gmh.New().
+					SetInterrupter(interrupterFunc).
+					SetInput(inputFunc).
+					Exec(strings.FieldsFunc(strings.Join(args, " "), func(r rune) bool {
+					return (r == ' ') || (r == '\n')
+				}))
+			}
 
 			if err != nil {
 				this.tg.ReplyToMessage(msg.MessageId(), err.Error(), msg.ChatId())
@@ -122,25 +145,6 @@ func (this *Script) Command(name string, msg telegram.TObject, args []string) {
 
 				this.tg.ReplyToMessage(msg.MessageId(), res, msg.ChatId())
 			}
-		}
-	} else if name == "cnm" {
-		end := time.Now().Add(time.Duration(int64(this.timeout)) * time.Second)
-		res, err := gmh.New().SetInterrupter(func() bool {
-			return time.Now().After(end)
-		}).Exec(strings.FieldsFunc(strings.Join(args, " "), func(r rune) bool {
-			return (r == ' ') || (r == '\n')
-		}))
-
-		if err != nil {
-			this.tg.ReplyToMessage(msg.MessageId(), err.Error(), msg.ChatId())
-		} else {
-			res = strings.Trim(res, " \n")
-
-			if res == "" {
-				res = "Empty"
-			}
-
-			this.tg.ReplyToMessage(msg.MessageId(), res, msg.ChatId())
 		}
 	}
 }
@@ -168,7 +172,7 @@ func (this *Script) Default(name string, msg telegram.TObject, state *map[string
 			this.Command(strings.ToLower(str[5:]), msg, []string{code})
 		}
 
-	} else if name == "brainfuck" {
+	} else if name == "input" {
 		if msg["text"] != nil {
 			text := strings.Trim(msg["text"].(string), " ")
 
