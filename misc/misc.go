@@ -34,7 +34,7 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 		(*cmds)["remind"] = types.Command{
 			Name:      "remind",
 			ArgNum:    0,
-			Desc:      "Remind you of something after a period of time",
+			Desc:      "Remind you of something after a period of time. To call a command as the reminder, add '\\' as a prefix.",
 			Processor: misc,
 		}
 
@@ -110,7 +110,12 @@ func (this *Misc) Default(name string, msg telegram.TObject, state *map[string]i
 				this.tg.ReplyToMessage(msg.MessageId(), "Yes, sir!", msg.ChatId())
 
 				utils.PostDelayed(func() {
-					this.tg.SendMessage("@"+msg.From()["username"].(string)+" "+text, msg.ChatId())
+					if !strings.HasPrefix(text, "\\/") {
+						this.tg.SendMessage("@"+msg.From()["username"].(string)+" "+text, msg.ChatId())
+					} else {
+						msg["text"] = text[1:]
+						utils.Handler()(msg)
+					}
 				}, duration)
 
 				utils.ReleaseGrabber(msg.FromId(), msg.ChatId())

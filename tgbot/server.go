@@ -12,6 +12,8 @@ import (
 )
 
 func MainLoop() {
+	utils.SetHandler(handle)
+
 	// Set webhook to null first
 	Telegram.SetWebhook("")
 

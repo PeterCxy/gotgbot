@@ -3,8 +3,21 @@ package utils
 import (
 	"time"
 
+	"github.com/PeterCxy/gotelegram"
 	"github.com/PeterCxy/gotgbot/support/types"
 )
+
+// The main handler
+var handler func(telegram.TObject)
+
+// Must be called from main
+func SetHandler(h func(telegram.TObject)) {
+	handler = h
+}
+
+func Handler() func(telegram.TObject) {
+	return handler
+}
 
 // Input "grabber"
 var grabbers map[int64]types.Grabber
