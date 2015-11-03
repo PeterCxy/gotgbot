@@ -3,6 +3,7 @@ package scholar
 
 import (
 	"fmt"
+	"strings"
 	qs "net/url"
 
 	"github.com/PuerkitoBio/goquery"
@@ -70,11 +71,16 @@ func Google(query string, start int, num int, ipv6 bool) (ret []GoogleResult, ha
 
 			desc.Find("div").Remove()
 
-			ret = append(ret, GoogleResult{
-				title:   link.First().Text(),
-				url:     u.Query().Get("q"),
-				summary: desc.Text(),
-			})
+			url := strings.Trim(u.Query().Get("q"), " ")
+
+			// Rule out the 'news'
+			if strings.HasPrefix(url, "http") {
+				ret = append(ret, GoogleResult{
+					title:   link.First().Text(),
+					url:     url,
+					summary: desc.Text(),
+				})
+			}
 		}
 	})
 
