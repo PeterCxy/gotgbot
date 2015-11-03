@@ -3,8 +3,8 @@ package scholar
 
 import (
 	"fmt"
-	"strings"
 	qs "net/url"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/ddliu/go-httpclient"

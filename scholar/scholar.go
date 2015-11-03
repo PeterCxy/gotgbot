@@ -65,6 +65,7 @@ func (this *Scholar) Command(name string, msg telegram.TObject, args []string) {
 			this.tg.ReplyToMessage(msg.MessageId(), "Please provide something to search for.", msg.ChatId())
 		} else {
 			num := 5
+			maxNum := num
 			irc := false
 
 			if (msg.Chat()["title"] != nil) && strings.HasPrefix(msg.Chat()["title"].(string), "#") {
@@ -73,7 +74,8 @@ func (this *Scholar) Command(name string, msg telegram.TObject, args []string) {
 			}
 
 			this.tg.SendChatAction("typing", msg.ChatId())
-			res, hasNext := Google(query, 0, num, this.ipv6)
+			res, hasNext := Google(query, 0, maxNum, this.ipv6)
+			res = res[:num-1]
 
 			if irc {
 				hasNext = false
