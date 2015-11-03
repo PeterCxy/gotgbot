@@ -75,7 +75,7 @@ func (this *Scholar) Command(name string, msg telegram.TObject, args []string) {
 
 			this.tg.SendChatAction("typing", msg.ChatId())
 			res, hasNext := Google(query, 0, maxNum, this.ipv6)
-			res = res[:num-1]
+			res = res[:num]
 
 			if irc {
 				hasNext = false
