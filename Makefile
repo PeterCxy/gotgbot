@@ -14,6 +14,7 @@ SOURCES := \
 	script/*.go \
 	pictures/*.go \
 	barcode/*.go \
+	channels/gank/*.go \
 
 .PHONY: clean all test fmt
 

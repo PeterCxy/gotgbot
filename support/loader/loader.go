@@ -11,6 +11,8 @@ import (
 	"github.com/PeterCxy/gotgbot/pictures"
 	"github.com/PeterCxy/gotgbot/scholar"
 	"github.com/PeterCxy/gotgbot/script"
+
+	"github.com/PeterCxy/gotgbot/channels/gank"
 )
 
 func LoadModules(tg *telegram.Telegram, config map[string]interface{}) (types.CommandMap, types.Command) {
@@ -52,6 +54,9 @@ func LoadModules(tg *telegram.Telegram, config map[string]interface{}) (types.Co
 	if d := barcode.Setup(tg, config, modules, &ret); d.Processor != nil {
 		def = d
 	}
+
+	// Load Channels
+	gank.Init(tg, modules, config)
 
 	return ret, def
 }
