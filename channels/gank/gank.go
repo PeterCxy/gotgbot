@@ -3,16 +3,15 @@ package gank
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 	"strings"
 	"os"
 	"log"
+	"time"
 	"io/ioutil"
 
 	"github.com/ddliu/go-httpclient"
 
 	"github.com/PeterCxy/gotelegram"
-	"github.com/PeterCxy/gotgbot/support/utils"
 )
 
 const api = "http://gank.avosapps.com/api/day/%d/%d/%d"
@@ -23,14 +22,12 @@ func Init(telegram *telegram.Telegram, modules map[string]bool, config map[strin
 
 		log.Printf("gank.io: setting up channel @%s", channel)
 
-		go update(telegram, channel)
-		//utils.PostDelayed(updateStub(telegram, channel), 24 * time.Hour)
-	}
-}
-
-func updateStub(telegram *telegram.Telegram, channel string) func() {
-	return func() {
-		update(telegram, channel)
+		go func() {
+			for {
+				update(telegram, channel)
+				time.Sleep(24 * time.Hour)
+			}
+		}()
 	}
 }
 
@@ -125,8 +122,6 @@ func update(tg *telegram.Telegram, channel string) {
 
 		tg.SendPhotoChan(name, channel)
 	}
-
-	utils.PostDelayed(updateStub(tg, channel), 24 * time.Hour)
 }
 
 func filter(str string) (ret string) {
