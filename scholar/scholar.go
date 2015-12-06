@@ -39,7 +39,7 @@ func Setup(t *telegram.Telegram, config map[string]interface{}, modules map[stri
 			Processor: scholar,
 		}
 
-		if val, ok := modules["ipv6_google"]; !ok || val {
+		if val, ok := config["ipv6_google"]; !ok || val.(bool) {
 			scholar.ipv6 = true
 		} else {
 			scholar.ipv6 = false
