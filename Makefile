@@ -15,6 +15,9 @@ SOURCES := \
 	pictures/*.go \
 	barcode/*.go \
 	channels/gank/*.go \
+	blackgun/*.go \
+	blackgun/common/*.go \
+	blackgun/rich/*.go \
 
 .PHONY: clean all test fmt
 
