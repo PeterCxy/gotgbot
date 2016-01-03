@@ -22,7 +22,7 @@ func Init(path string) {
 	file = path + "/rich.json"
 	if _, err := os.Stat(file); err != nil {
 		network = neural.NewNetwork(common.SampleLen, []int{1000, 1000, 2})
-		network.RandomizeSynapses()
+		//network.RandomizeSynapses()
 	} else {
 		network = persist.FromFile(file)
 	}
