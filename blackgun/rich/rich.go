@@ -43,8 +43,6 @@ func Learn(msg telegram.TObject) bool {
 		} else if strings.Contains(msg["text"].(string), "#POOR") {
 			eng.Learn(common.TextToSample(msg["text"].(string)), []float64{0, 1}, 0.1)
 			return true
-		} else {
-			eng.Learn(common.TextToSample(msg["text"].(string)), []float64{0, 0}, 0.1)
 		}
 	}
 
@@ -56,9 +54,11 @@ func Gun(tg *telegram.Telegram, msg telegram.TObject) bool {
 		out := eng.Calculate(common.TextToSample(msg["text"].(string)))
 		log.Println(out)
 
-		if (out[0] > 0.8) && (out[0] - out[1] > 0.5) {
+		if (out[0] > 0.9) && (out[0] - out[1] > 0.5) {
 			tg.ReplyToMessage(msg.MessageId(), "#RICH", msg.ChatId())
 			return true
+		} else {
+			eng.Learn(common.TextToSample(msg["text"].(string)), []float64{0.1, 0.1}, 0.1)
 		}
 	}
 
