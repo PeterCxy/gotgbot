@@ -54,11 +54,9 @@ func Gun(tg *telegram.Telegram, msg telegram.TObject) bool {
 		out := eng.Calculate(common.TextToSample(msg["text"].(string)))
 		log.Println(out)
 
-		if (out[0] > 0.9) && (out[0] - out[1] > 0.5) {
+		if (out[0] > 0.5) && (out[0] - out[1] > 0.3) {
 			tg.ReplyToMessage(msg.MessageId(), "#RICH", msg.ChatId())
 			return true
-		} else {
-			eng.Learn(common.TextToSample(msg["text"].(string)), []float64{0.1, 0.1}, 0.1)
 		}
 	}
 
